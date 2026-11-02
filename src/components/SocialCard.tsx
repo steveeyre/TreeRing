@@ -28,6 +28,14 @@ const PREVIEW_W = 300
 // the type size down as it gets longer.
 const MAX_BODY_CHARS = 420
 
+function isTouchDevice(): boolean {
+  if (typeof window === 'undefined') return false
+  return (
+    !!window.matchMedia?.('(pointer: coarse)').matches ||
+    /Android|iPhone|iPad|iPod|MicroMessenger/i.test(navigator.userAgent)
+  )
+}
+
 function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -105,7 +113,8 @@ export default function SocialCard({
       const blob = await renderBlob()
       if (!blob) return
       const file = new File([blob], fileName(), { type: 'image/png' })
-      // Phones: the system share sheet lists WeChat and takes the file directly.
+      // Phones: the system share sheet lists WeChat and takes the file directly. Safari can
+      // reject share() once the async render has consumed the gesture, so never rely on it.
       if (navigator.canShare?.({ files: [file] })) {
         try {
           await navigator.share({ files: [file] })
@@ -114,9 +123,11 @@ export default function SocialCard({
           if ((e as Error)?.name === 'AbortError') return
         }
       }
-      if (/MicroMessenger/i.test(navigator.userAgent)) {
+      // Phones do not expose image clipboard writes to other apps, and a copy that silently
+      // lands nowhere is worse than none — show the PNG so it can be long-pressed into the album.
+      if (isTouchDevice()) {
         setFallbackSrc(await blobToDataUrl(blob))
-        setHint('长按上方图片保存到相册，再发送给微信好友')
+        setHint('长按上方图片保存到相册，再到微信里发送')
         return
       }
       // Desktop: paste straight into the WeChat chat window.
