@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "description": "TreeRing（小年轮）· AI 育儿记录 PWA",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",
