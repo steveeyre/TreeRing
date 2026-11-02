@@ -1,0 +1,30 @@
+# Cloudflare Workers 配置（备用部署目标，本网络无法访问 *.workers.dev）。
+# 主入口已改为 Pages（见 wrangler.toml），这里保留以便 Workers 侧也能独立发布：
+#   npm run deploy:worker
+name = "mengya-pwa"
+main = "workers/api.ts"
+compatibility_date = "2026-09-07"
+workers_dev = true
+
+[assets]
+directory = "dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+# 首次部署顺序（需先装 Node.js，本项目未内置工具链）：
+#   npx wrangler login
+#   npx wrangler d1 create mengya-db          # 把输出的 database_id 回填到下方
+#   npx wrangler r2 bucket create mengya-audio
+#   npx wrangler d1 execute mengya-db --file=workers/schema.sql --remote
+#   npm run deploy:worker                     # = tsc -b && vite build && wrangler deploy --config wrangler.worker.toml
+# 部署后同一域名下 /api/* 即由 Worker 提供，前端无需配置 VITE_API_BASE_URL。
+[[d1_databases]]
+binding = "DB"
+database_name = "mengya-db"
+database_id = "7b751612-c08e-42e5-8ace-6e3770c0d4e7"
+
+# R2 尚未在账号内开通（API code 10042），先注释掉绑定，语音接口会返回 503。
+# 在 Cloudflare 控制台开通 R2 后取消注释并重新部署即可恢复。
+# [[r2_buckets]]
+# binding = "AUDIO"
+# bucket_name = "mengya-audio"

@@ -1,0 +1,18 @@
+# Cloudflare Pages 配置（主部署目标）。
+# Pages 命令不接受 --config，只读取固定的 ./wrangler.toml，所以 Workers 配置搬到了
+# wrangler.worker.toml（用 `npm run deploy:worker` 部署，已不再作为主入口）。
+# 前端与 /api/* 同域：静态资源由 Pages 提供，API 由 functions/api/[[path]].ts 提供。
+name = "mengya-pwa"
+compatibility_date = "2026-09-07"
+pages_build_output_dir = "dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "mengya-db"
+database_id = "7b751612-c08e-42e5-8ace-6e3770c0d4e7"
+
+# R2 尚未在账号内开通（API code 10042），先注释掉绑定，语音接口会返回 503。
+# 在 Cloudflare 控制台开通 R2 后取消注释并重新部署即可恢复。
+# [[r2_buckets]]
+# binding = "AUDIO"
+# bucket_name = "mengya-audio"

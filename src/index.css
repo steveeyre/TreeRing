@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand: #3f6b51;
+  --paper: #eff1ea;
+  --ink: #26302a;
+  --muted: #6f7568;
+  --line: #d6d3c6;
+  --brass: #a9762f;
+  --rust: #8e4a38;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI',
+    'Microsoft YaHei', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.serif {
+  font-family: 'Songti SC', 'Noto Serif SC', 'Source Han Serif SC', 'SimSun',
+    'Times New Roman', serif;
+  font-feature-settings: 'pnum';
+}
+
+.num {
+  font-family: 'Songti SC', 'Noto Serif SC', 'SimSun', 'Times New Roman', serif;
+  font-feature-settings: 'tnum';
+  font-variant-numeric: tabular-nums;
+}
+
+/* Apple HIG: minimum touch target */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg font-medium transition-colors touch-target select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40;
+  }
+  .btn-primary {
+    @apply btn bg-ink text-paper hover:bg-brand-600 disabled:opacity-40 disabled:pointer-events-none;
+  }
+  .btn-ghost {
+    @apply btn text-ink hover:bg-ink/5;
+  }
+  .btn-soft {
+    @apply btn bg-ink/[0.06] text-ink hover:bg-ink/10;
+  }
+  .card {
+    @apply bg-white rounded-xl border border-line;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full px-3 h-8 text-xs font-medium border border-line bg-white text-ink;
+  }
+  .field {
+    @apply w-full bg-transparent border-0 border-b border-line rounded-none px-0 text-[15px] text-ink outline-none focus:border-brand transition-colors;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
