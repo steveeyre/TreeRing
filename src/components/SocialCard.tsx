@@ -105,38 +105,26 @@ export default function SocialCard({
     }
   }
 
-  const shareToWeChat = async () => {
+  const copyPng = async () => {
     setBusy(true)
     setHint('')
     setFallbackSrc('')
     try {
       const blob = await renderBlob()
       if (!blob) return
-      const file = new File([blob], fileName(), { type: 'image/png' })
-      // Phones: the system share sheet lists WeChat and takes the file directly. Safari can
-      // reject share() once the async render has consumed the gesture, so never rely on it.
-      if (navigator.canShare?.({ files: [file] })) {
-        try {
-          await navigator.share({ files: [file] })
-          return
-        } catch (e) {
-          if ((e as Error)?.name === 'AbortError') return
-        }
-      }
-      // Phones do not expose image clipboard writes to other apps, and a copy that silently
-      // lands nowhere is worse than none — show the PNG so it can be long-pressed into the album.
-      if (isTouchDevice()) {
-        setFallbackSrc(await blobToDataUrl(blob))
-        setHint('长按上方图片保存到相册，再到微信里发送')
-        return
-      }
-      // Desktop: paste straight into the WeChat chat window.
       try {
         await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
-        setHint('图片已复制，切到微信窗口粘贴即可发送')
+        setHint('图片已复制，粘贴到微信即可发送')
+        return
       } catch {
-        download(blob)
-        setHint('浏览器不支持直接发送，已改为保存图片')
+        // Clipboard images are not universal: iOS Safari and in-app browsers reject them.
+        if (isTouchDevice()) {
+          setFallbackSrc(await blobToDataUrl(blob))
+          setHint('当前浏览器不支持复制图片，长按上方图片保存到相册')
+        } else {
+          download(blob)
+          setHint('当前浏览器不支持复制图片，已改为保存图片')
+        }
       }
     } finally {
       setBusy(false)
@@ -339,8 +327,8 @@ export default function SocialCard({
           <button className="btn-soft flex-1" onClick={() => void savePng()} disabled={busy}>
             保存为图片
           </button>
-          <button className="btn-primary flex-1" onClick={() => void shareToWeChat()} disabled={busy}>
-            {busy ? '生成中…' : '发送至微信'}
+          <button className="btn-primary flex-1" onClick={() => void copyPng()} disabled={busy}>
+            {busy ? '生成中…' : '复制为图片'}
           </button>
         </div>
       </div>
